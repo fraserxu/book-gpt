@@ -1,10 +1,11 @@
 import { Writable } from "stream"
 import type { NextApiRequest, NextApiResponse, PageConfig } from "next"
+import { PineconeClient } from "@pinecone-database/pinecone"
 import formidable from "formidable"
 import { Document } from "langchain/document"
 import { OpenAIEmbeddings } from "langchain/embeddings"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
-import { HNSWLib } from "langchain/vectorstores"
+import { PineconeStore } from "langchain/vectorstores"
 import { getDocument } from "pdfjs-dist"
 
 const getTextContent = async (pdfBuffer) => {
@@ -74,17 +75,22 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     chunkOverlap: 200,
   })
   const docs = textSplitter.splitDocuments([rawDocs])
-  const vectorStore = await HNSWLib.fromDocuments(
+  // pinecone
+  const pinecone = new PineconeClient()
+  await pinecone.init({
+    environment: "us-west1-gcp",
+    apiKey: process.env.PINECONE_API_KEY,
+  })
+  const index = pinecone.Index("book-gpt")
+  await PineconeStore.fromDocuments(
+    index,
     docs,
     new OpenAIEmbeddings({
       openAIApiKey: process.env.OPEN_API_KEY,
     })
   )
-  await vectorStore.save("data")
 
-  res.status(200).json({
-    content: pdfText,
-  })
+  res.status(200).json({})
 }
 
 export const config: PageConfig = {
