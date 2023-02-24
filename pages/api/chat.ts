@@ -9,6 +9,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const { question } = req.body
   // create vector store
   const pinecone = new PineconeClient()
 
@@ -17,7 +18,7 @@ export default async function handler(
     apiKey: process.env.PINECONE_API_KEY,
   })
 
-  const index = pinecone.Index("book-gpt")
+  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME)
   const vectorStore = await PineconeStore.fromExistingIndex(
     index,
     new OpenAIEmbeddings({
@@ -32,7 +33,7 @@ export default async function handler(
   const chain = VectorDBQAChain.fromLLM(model, vectorStore)
 
   const response = await chain.call({
-    query: "What change are made to the pds",
+    query: question,
   })
 
   res.status(200).json(response)

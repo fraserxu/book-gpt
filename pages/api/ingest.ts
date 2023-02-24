@@ -75,13 +75,14 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     chunkOverlap: 200,
   })
   const docs = textSplitter.splitDocuments([rawDocs])
-  // pinecone
+
   const pinecone = new PineconeClient()
   await pinecone.init({
     environment: "us-west1-gcp",
     apiKey: process.env.PINECONE_API_KEY,
   })
-  const index = pinecone.Index("book-gpt")
+
+  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME)
   await PineconeStore.fromDocuments(
     index,
     docs,
