@@ -6,20 +6,8 @@ import { Document } from "langchain/document"
 import { OpenAIEmbeddings } from "langchain/embeddings"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
 import { PineconeStore } from "langchain/vectorstores"
-import { getDocument } from "pdfjs-dist"
 
-const getTextContent = async (pdfBuffer) => {
-  let text = ""
-
-  const pdfDoc = await getDocument({ data: pdfBuffer }).promise
-  for (let i = 1; i <= pdfDoc.numPages; i++) {
-    const page = await pdfDoc.getPage(i)
-    const content = await page.getTextContent()
-    text += content.items.map((item) => item.str).join(" ")
-  }
-
-  return text
-}
+import { getTextContentFromPDF } from "@/lib/pdf"
 
 const formidableConfig = {
   keepExtensions: true,
@@ -67,7 +55,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
   })
 
   const pdfData = Buffer.concat(chunks)
-  const pdfText = await getTextContent(pdfData)
+  const pdfText = await getTextContentFromPDF(pdfData)
 
   const rawDocs = new Document({ pageContent: pdfText })
   const textSplitter = new RecursiveCharacterTextSplitter({
