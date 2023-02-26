@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react"
 import Head from "next/head"
-import { Loader2, MessageCircle, UploadCloud } from "lucide-react"
+import { Loader2, MessageCircle, Send, UploadCloud } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
 import { siteConfig } from "@/config/site"
@@ -116,7 +116,7 @@ export default function IndexPage() {
           <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
             Ask me anything about the book
           </h2>
-          <Textarea
+          {/* <Textarea
             id="query"
             value={question}
             placeholder={DEFAULT_QUESTION}
@@ -135,7 +135,93 @@ export default function IndexPage() {
             </Button>
           </div>
 
-          {answer && <div>{answer}</div>}
+          {answer && <div>{answer}</div>} */}
+
+          <div className="w-full ">
+            <div className="scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch flex flex-col space-y-4 overflow-y-auto p-3">
+              <div className="chat-message">
+                <div className="flex items-end">
+                  <div className="order-2 mx-2 flex max-w-xs flex-col items-start space-y-2 text-xs">
+                    <div>
+                      <span className="inline-block rounded-lg rounded-bl-none bg-gray-300 px-4 py-2 text-gray-600">
+                        Can be verified on any platform using docker
+                      </span>
+                    </div>
+                  </div>
+                  <img
+                    src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+                    alt="My profile"
+                    className="order-1 h-6 w-6 rounded-full"
+                  />
+                </div>
+              </div>
+              <div className="chat-message">
+                <div className="flex items-end justify-end">
+                  <div className="order-1 mx-2 flex max-w-xs flex-col items-end space-y-2 text-xs">
+                    <div>
+                      <span className="inline-block rounded-lg rounded-br-none bg-blue-600 px-4 py-2 text-white ">
+                        Your error message says permission denied, npm global
+                        installs must be given root privileges.
+                      </span>
+                    </div>
+                  </div>
+                  <img
+                    src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+                    alt="My profile"
+                    className="order-2 h-6 w-6 rounded-full"
+                  />
+                </div>
+              </div>
+              <div className="chat-message">
+                <div className="flex items-end">
+                  <div className="order-2 mx-2 flex max-w-xs flex-col items-start space-y-2 text-xs">
+                    <div>
+                      <span className="inline-block rounded-lg rounded-bl-none bg-gray-300 px-4 py-2 text-gray-600">
+                        Can be verified on any platform using docker
+                      </span>
+                    </div>
+                  </div>
+                  <img
+                    src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+                    alt="My profile"
+                    className="order-1 h-6 w-6 rounded-full"
+                  />
+                </div>
+              </div>
+              <div className="chat-message">
+                <div className="flex items-end justify-end">
+                  <div className="order-1 mx-2 flex max-w-xs flex-col items-end space-y-2 text-xs">
+                    <div>
+                      <span className="inline-block rounded-lg rounded-br-none bg-blue-600 px-4 py-2 text-white ">
+                        Your error message says permission denied, npm global
+                        installs must be given root privileges.
+                      </span>
+                    </div>
+                  </div>
+                  <img
+                    src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+                    alt="My profile"
+                    className="order-2 h-6 w-6 rounded-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-2 border-t-2 border-gray-200 pt-4 sm:mb-0">
+              <div className="relative flex">
+                <input
+                  type="text"
+                  placeholder="Ask me anything!"
+                  className="mr-2 w-full rounded-md bg-gray-200 pl-2 text-gray-600 placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
+                />
+                <div className="items-center sm:flex">
+                  <Button className="inline-flex items-center justify-center transition duration-500 ease-in-out focus:outline-none">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>
