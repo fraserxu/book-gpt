@@ -37,6 +37,9 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     case "application/pdf":
       fileText = await getTextContentFromPDF(fileData)
       break
+    case "application/octet-stream":
+      fileText = fileData.toString()
+      break
     default:
       throw new Error("Unsupported file type.")
   }

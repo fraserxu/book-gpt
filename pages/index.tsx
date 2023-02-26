@@ -43,7 +43,7 @@ export default function IndexPage() {
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
-      "text/plain": [".txt"],
+      "text/plain": [".txt", ".md"],
     },
     multiple: false,
     maxFiles: 1,
