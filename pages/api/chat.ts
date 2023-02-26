@@ -34,6 +34,7 @@ export default async function handler(
 
   const response = await chain.call({
     query: question,
+    max_tokens: 500,
   })
 
   res.status(200).json(response)
