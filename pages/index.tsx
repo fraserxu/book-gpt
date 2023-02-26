@@ -28,7 +28,7 @@ export default function IndexPage() {
   const handleUpload = useCallback(async () => {
     const formData = new FormData()
     Array.from(files).forEach((file) => {
-      formData.append("pdf", file)
+      formData.append("file", file)
     })
 
     setIsUploading(true)
@@ -43,6 +43,7 @@ export default function IndexPage() {
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
+      "text/plain": [".txt"],
     },
     multiple: false,
     maxFiles: 1,
@@ -80,7 +81,7 @@ export default function IndexPage() {
             className="min-w-full rounded-md border border-slate-200 p-0 dark:border-slate-700"
             {...getRootProps()}
           >
-            <div className="flex min-h-[150px] items-center justify-center p-10">
+            <div className="flex min-h-[150px] cursor-pointer items-center justify-center p-10">
               <input {...getInputProps()} />
 
               {files ? (
@@ -91,7 +92,8 @@ export default function IndexPage() {
                     <p>Drop the files here ...</p>
                   ) : (
                     <p>
-                      Drag 'n' drop some files here, or click to select files
+                      Drag 'n' drop a file(.pdf, .txt) here, or click to select
+                      file
                     </p>
                   )}
                 </>
@@ -99,11 +101,11 @@ export default function IndexPage() {
             </div>
           </div>
           <div className="self-start">
-            <Button onClick={handleUpload}>
+            <Button disabled={!files || isUploading} onClick={handleUpload}>
               {!isUploading ? (
                 <UploadCloud className="mr-2 h-4 w-4" />
               ) : (
-                <Loader2 className="mr-2 h-4 w-4" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Upload
             </Button>
@@ -127,7 +129,7 @@ export default function IndexPage() {
               {!isAsking ? (
                 <MessageCircle className="mr-2 h-4 w-4" />
               ) : (
-                <Loader2 className="mr-2 h-4 w-4" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Submit
             </Button>

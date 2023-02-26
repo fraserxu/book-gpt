@@ -1,12 +1,11 @@
-import { Writable } from "stream"
 import type { NextApiRequest, NextApiResponse, PageConfig } from "next"
 import { PineconeClient } from "@pinecone-database/pinecone"
-import formidable from "formidable"
 import { Document } from "langchain/document"
 import { OpenAIEmbeddings } from "langchain/embeddings"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
 import { PineconeStore } from "langchain/vectorstores"
 
+import { fileConsumer, formidablePromise } from "@/lib/formidable"
 import { getTextContentFromPDF } from "@/lib/pdf"
 
 const formidableConfig = {
@@ -18,46 +17,31 @@ const formidableConfig = {
   multiples: false,
 }
 
-function formidablePromise(
-  req: NextApiRequest,
-  opts?: Parameters<typeof formidable>[0]
-): Promise<{ fields: formidable.Fields; files: formidable.Files }> {
-  return new Promise((accept, reject) => {
-    const form = formidable(opts)
-
-    form.parse(req, (err, fields, files) => {
-      if (err) {
-        return reject(err)
-      }
-      return accept({ fields, files })
-    })
-  })
-}
-
-const fileConsumer = <T = unknown>(acc: T[]) => {
-  const writable = new Writable({
-    write: (chunk, _enc, next) => {
-      acc.push(chunk)
-      next()
-    },
-  })
-
-  return writable
-}
-
 export async function handler(req: NextApiRequest, res: NextApiResponse) {
   const chunks: never[] = []
 
-  await formidablePromise(req, {
+  const { fields, files } = await formidablePromise(req, {
     ...formidableConfig,
     // consume this, otherwise formidable tries to save the file to disk
     fileWriteStreamHandler: () => fileConsumer(chunks),
   })
 
-  const pdfData = Buffer.concat(chunks)
-  const pdfText = await getTextContentFromPDF(pdfData)
+  const fileData = Buffer.concat(chunks)
+  const { file } = files
+  let fileText = ""
 
-  const rawDocs = new Document({ pageContent: pdfText })
+  switch (file.mimetype) {
+    case "text/plain":
+      fileText = fileData.toString()
+      break
+    case "application/pdf":
+      fileText = await getTextContentFromPDF(fileData)
+      break
+    default:
+      throw new Error("Unsupported file type.")
+  }
+
+  const rawDocs = new Document({ pageContent: fileText })
   const textSplitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
     chunkOverlap: 200,
