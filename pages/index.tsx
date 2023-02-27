@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from "react"
 import Head from "next/head"
-import { Loader2, MessageCircle, Send, UploadCloud } from "lucide-react"
+import { Bot, Loader2, Send, UploadCloud, User } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
 import { siteConfig } from "@/config/site"
+import { cn } from "@/lib/utils"
 import { Layout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,9 +14,9 @@ const DEFAULT_QUESTION = "what is this about?"
 export default function IndexPage() {
   const [files, setFiles] = useState(null)
   const [question, setQuestion] = useState(DEFAULT_QUESTION)
-  const [answer, setAnswer] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isAsking, setIsAsking] = useState(false)
+  const [chatHistory, setChatHistory] = useState([])
 
   const handleQueryChange = (e) => {
     setQuestion(e.target.value)
@@ -51,8 +52,23 @@ export default function IndexPage() {
 
   const handleSubmit = useCallback(async () => {
     setIsAsking(true)
+    setQuestion("")
+    setChatHistory([
+      ...chatHistory,
+      {
+        from: "user",
+        content: question,
+      },
+    ])
+
     const response = await fetch("/api/chat", {
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({
+        question,
+        chatHistory: chatHistory.reduce((prev, curr) => {
+          prev += curr.content
+          return prev
+        }, ""),
+      }),
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -60,9 +76,16 @@ export default function IndexPage() {
     })
     const answer = await response.json()
 
-    setAnswer(answer.text)
+    setChatHistory((currentChatHistory) => [
+      ...currentChatHistory,
+      {
+        from: "bot",
+        content: answer.text,
+      },
+    ])
+
     setIsAsking(false)
-  }, [question])
+  }, [question, chatHistory])
 
   return (
     <Layout>
@@ -116,107 +139,66 @@ export default function IndexPage() {
           <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
             Ask me anything about the book
           </h2>
-          {/* <Textarea
-            id="query"
-            value={question}
-            placeholder={DEFAULT_QUESTION}
-            onChange={handleQueryChange}
-            className="w-full rounded border border-gray-400 py-2 px-3 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-            rows={10}
-          />
-          <div className="self-end">
-            <Button onClick={handleSubmit}>
-              {!isAsking ? (
-                <MessageCircle className="mr-2 h-4 w-4" />
-              ) : (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Submit
-            </Button>
-          </div>
 
-          {answer && <div>{answer}</div>} */}
-
-          <div className="w-full ">
-            <div className="scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch flex flex-col space-y-4 overflow-y-auto p-3">
-              <div className="chat-message">
-                <div className="flex items-end">
-                  <div className="order-2 mx-2 flex max-w-xs flex-col items-start space-y-2 text-xs">
-                    <div>
-                      <span className="inline-block rounded-lg rounded-bl-none bg-gray-300 px-4 py-2 text-gray-600">
-                        Can be verified on any platform using docker
-                      </span>
+          <div className="w-full">
+            <div className="scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch flex min-h-[300px] flex-col space-y-4 overflow-y-auto rounded border border-gray-400 p-4">
+              {chatHistory.map((chat, index) => {
+                return (
+                  <div className="chat-message" key={index}>
+                    <div
+                      className={cn(
+                        "flex",
+                        "items-end",
+                        chat.from === "bot" && "justify-end"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "order-2 mx-2 flex max-w-xs flex-col items-start space-y-2 text-xs",
+                          chat.from === "bot" && "order-1"
+                        )}
+                      >
+                        <div>
+                          <span
+                            className={cn(
+                              "inline-block rounded-lg bg-gray-300 px-4 py-2 text-gray-600",
+                              chat.from === "user" &&
+                                "rounded-bl-none bg-gray-300 text-gray-600",
+                              chat.from === "bot" &&
+                                "rounded-br-none bg-blue-600 text-white"
+                            )}
+                          >
+                            {chat.content}
+                          </span>
+                        </div>
+                      </div>
+                      {chat.from === "user" ? (
+                        <User className="order-1 h-4 w-4" />
+                      ) : (
+                        <Bot className="order-1 h-4 w-4" />
+                      )}
                     </div>
                   </div>
-                  <img
-                    src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-                    alt="My profile"
-                    className="order-1 h-6 w-6 rounded-full"
-                  />
-                </div>
-              </div>
-              <div className="chat-message">
-                <div className="flex items-end justify-end">
-                  <div className="order-1 mx-2 flex max-w-xs flex-col items-end space-y-2 text-xs">
-                    <div>
-                      <span className="inline-block rounded-lg rounded-br-none bg-blue-600 px-4 py-2 text-white ">
-                        Your error message says permission denied, npm global
-                        installs must be given root privileges.
-                      </span>
-                    </div>
-                  </div>
-                  <img
-                    src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-                    alt="My profile"
-                    className="order-2 h-6 w-6 rounded-full"
-                  />
-                </div>
-              </div>
-              <div className="chat-message">
-                <div className="flex items-end">
-                  <div className="order-2 mx-2 flex max-w-xs flex-col items-start space-y-2 text-xs">
-                    <div>
-                      <span className="inline-block rounded-lg rounded-bl-none bg-gray-300 px-4 py-2 text-gray-600">
-                        Can be verified on any platform using docker
-                      </span>
-                    </div>
-                  </div>
-                  <img
-                    src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-                    alt="My profile"
-                    className="order-1 h-6 w-6 rounded-full"
-                  />
-                </div>
-              </div>
-              <div className="chat-message">
-                <div className="flex items-end justify-end">
-                  <div className="order-1 mx-2 flex max-w-xs flex-col items-end space-y-2 text-xs">
-                    <div>
-                      <span className="inline-block rounded-lg rounded-br-none bg-blue-600 px-4 py-2 text-white ">
-                        Your error message says permission denied, npm global
-                        installs must be given root privileges.
-                      </span>
-                    </div>
-                  </div>
-                  <img
-                    src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-                    alt="My profile"
-                    className="order-2 h-6 w-6 rounded-full"
-                  />
-                </div>
-              </div>
+                )
+              })}
             </div>
 
-            <div className="mb-2 border-t-2 border-gray-200 pt-4 sm:mb-0">
+            <div className="mb-2 pt-4 sm:mb-0">
               <div className="relative flex">
                 <input
                   type="text"
-                  placeholder="Ask me anything!"
-                  className="mr-2 w-full rounded-md bg-gray-200 pl-2 text-gray-600 placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
+                  value={question}
+                  placeholder={DEFAULT_QUESTION}
+                  onChange={handleQueryChange}
+                  className="mr-2 w-full rounded-md border border-gray-400 pl-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
                 />
                 <div className="items-center sm:flex">
-                  <Button className="inline-flex items-center justify-center transition duration-500 ease-in-out focus:outline-none">
-                    <Send className="h-4 w-4" />
+                  <Button onClick={handleSubmit}>
+                    {!isAsking ? (
+                      <Send className="h-4 w-4" />
+                    ) : (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
                   </Button>
                 </div>
               </div>
