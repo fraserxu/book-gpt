@@ -7,7 +7,6 @@ import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import { Layout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 
 const DEFAULT_QUESTION = "what is this about?"
 
@@ -28,7 +27,7 @@ export default function IndexPage() {
 
   const handleUpload = useCallback(async () => {
     const formData = new FormData()
-    Array.from(files).forEach((file) => {
+    Array.from(files).forEach((file: File) => {
       formData.append("file", file)
     })
 
@@ -115,7 +114,7 @@ export default function IndexPage() {
                     <p>Drop the files here ...</p>
                   ) : (
                     <p>
-                      Drag 'n' drop a file(.pdf, .txt) here, or click to select
+                      Drag and drop a file(.pdf, .txt) here, or click to select
                       file
                     </p>
                   )}
