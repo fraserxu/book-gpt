@@ -6,7 +6,8 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
 import { PineconeStore } from "langchain/vectorstores"
 
 import { fileConsumer, formidablePromise } from "@/lib/formidable"
-import { getTextContentFromPDF } from "@/lib/pdf"
+
+// import { getTextContentFromPDF } from "@/lib/pdf"
 
 const formidableConfig = {
   keepExtensions: true,
@@ -34,9 +35,9 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     case "text/plain":
       fileText = fileData.toString()
       break
-    case "application/pdf":
-      fileText = await getTextContentFromPDF(fileData)
-      break
+    // case "application/pdf":
+    //   fileText = await getTextContentFromPDF(fileData)
+    //   break
     case "application/octet-stream":
       fileText = fileData.toString()
       break
