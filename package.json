@@ -52,7 +52,7 @@
     "next": "^13.1.6",
     "next-themes": "^0.2.1",
     "openai": "^3.1.0",
-    "pdfjs-dist": "^3.3.122",
+    "pdf-parse": "^1.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
