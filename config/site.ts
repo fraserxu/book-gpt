@@ -18,6 +18,10 @@ export const siteConfig: SiteConfig = {
       title: "Home",
       href: "/",
     },
+    {
+      title: "Credentials",
+      href: "/credentials",
+    },
   ],
   links: {
     twitter: "https://twitter.com/fraserxu",

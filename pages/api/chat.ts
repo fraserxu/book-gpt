@@ -5,28 +5,30 @@ import { OpenAIEmbeddings } from "langchain/embeddings"
 import { OpenAI } from "langchain/llms"
 import { PineconeStore } from "langchain/vectorstores"
 
+const PINECONE_INDEX_NAME = "book-gpt"
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { question, chatHistory } = req.body
+  const { question, chatHistory, credentials } = req.body
   const pinecone = new PineconeClient()
 
   await pinecone.init({
     environment: "us-west1-gcp",
-    apiKey: process.env.PINECONE_API_KEY,
+    apiKey: credentials.pineconeApiKey,
   })
 
-  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME)
+  const index = pinecone.Index(PINECONE_INDEX_NAME)
   const vectorStore = await PineconeStore.fromExistingIndex(
     index,
     new OpenAIEmbeddings({
-      openAIApiKey: process.env.OPEN_API_KEY,
+      openAIApiKey: credentials.openaiApiKey,
     })
   )
 
   const model = new OpenAI({
-    openAIApiKey: process.env.OPEN_API_KEY,
+    openAIApiKey: credentials.openaiApiKey,
   })
 
   const chain = ChatVectorDBQAChain.fromLLM(model, vectorStore)

@@ -1,41 +1,25 @@
 import React, { useCallback, useState } from "react"
 import Head from "next/head"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { Bot, FileKey, Loader2, Send, UploadCloud, User } from "lucide-react"
+import Link from "next/link"
+import { useCredentials } from "@/context/credentials-context"
+import { Bot, Loader2, Send, UploadCloud, User } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import { Layout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
 const DEFAULT_QUESTION = "what is this about?"
 
 export default function IndexPage() {
-  const [openaiApiKey, setOpenaiApiKey] = useState("")
-  const [pineconeApiKey, setPineconeApiKey] = useState("")
   const [files, setFiles] = useState(null)
   const [question, setQuestion] = useState(DEFAULT_QUESTION)
   const [isUploading, setIsUploading] = useState(false)
   const [isAsking, setIsAsking] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
+  const credentials = useCredentials()
 
-  const handleOpenaiApiKeyChange = (e) => {
-    setOpenaiApiKey(e.target.value)
-  }
-  const handlePineconeApiKeyChange = (e) => {
-    setPineconeApiKey(e.target.value)
-  }
   const handleQueryChange = (e) => {
     setQuestion(e.target.value)
   }
@@ -46,8 +30,8 @@ export default function IndexPage() {
 
   const handleUpload = useCallback(async () => {
     const formData = new FormData()
-    formData.append("openai-api-key", openaiApiKey)
-    formData.append("pinecone-api-key", pineconeApiKey)
+    formData.append("openai-api-key", credentials.openaiApiKey)
+    formData.append("pinecone-api-key", credentials.pineconeApiKey)
     Array.from(files).forEach((file: File) => {
       formData.append("file", file)
     })
@@ -58,7 +42,7 @@ export default function IndexPage() {
       body: formData,
     })
     setIsUploading(false)
-  }, [files, openaiApiKey, pineconeApiKey])
+  }, [files, credentials])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -83,6 +67,7 @@ export default function IndexPage() {
 
     const response = await fetch("/api/chat", {
       body: JSON.stringify({
+        credentials,
         question,
         chatHistory: chatHistory.reduce((prev, curr) => {
           prev += curr.content
@@ -105,7 +90,9 @@ export default function IndexPage() {
     ])
 
     setIsAsking(false)
-  }, [question, chatHistory])
+  }, [question, chatHistory, credentials])
+
+  console.log({ credentials })
 
   return (
     <Layout>
@@ -143,57 +130,24 @@ export default function IndexPage() {
               )}
             </div>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <FileKey className="mr-2 h-4 w-4" />
-                Add Credentials
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[625px]">
-              <DialogHeader>
-                <DialogTitle>Add credentials</DialogTitle>
-                <DialogDescription>
-                  We will need these credentials in order to making API calls to
-                  OpenAI and Pinecone. Your credentials will be not be stored
-                  anywhere in the server.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="openai-api-key" className="text-right">
-                    OpenAI API Key
-                  </Label>
-                  <Input
-                    id="openai-api-key"
-                    value={openaiApiKey}
-                    placeholder="sk-***************************"
-                    className="col-span-3"
-                    onChange={handleOpenaiApiKeyChange}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="pinecone-api-key" className="text-right">
-                    Pinecone API Key
-                  </Label>
-                  <Input
-                    id="pinecone-api-key"
-                    value={pineconeApiKey}
-                    placeholder="*****-****-****"
-                    className="col-span-3"
-                    onChange={handlePineconeApiKeyChange}
-                  />
-                </div>
-              </div>
-              <DialogPrimitive.Close asChild>
-                <Button>Save changes</Button>
-              </DialogPrimitive.Close>
-            </DialogContent>
-          </Dialog>
+          <div>
+            This app needs you to{" "}
+            <Link
+              className="cursor-pointer text-blue-500 hover:text-blue-700 hover:underline"
+              href="/credentials"
+              rel="noreferrer"
+            >
+              add credentials
+            </Link>{" "}
+            to work properly.
+          </div>
           <div className="self-start">
             <Button
               disabled={
-                !files || isUploading || !openaiApiKey || !pineconeApiKey
+                !files ||
+                isUploading ||
+                !credentials.openaiApiKey ||
+                !credentials.pineconeApiKey
               }
               onClick={handleUpload}
             >
