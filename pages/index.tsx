@@ -11,6 +11,11 @@ import { Layout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 
 const DEFAULT_QUESTION = "what is this about?"
+const INITIAL_MESSAGE = {
+  from: "bot",
+  content:
+    "You can think me as your knowledge base, once you uploaded a book, the knowledge will be persisted in the database. You can come back at any time to ask questions about them, across multiple books.",
+}
 
 export default function IndexPage() {
   const [files, setFiles] = useState(null)
@@ -92,8 +97,6 @@ export default function IndexPage() {
     setIsAsking(false)
   }, [question, chatHistory, credentials])
 
-  console.log({ credentials })
-
   return (
     <Layout>
       <Head>
@@ -168,7 +171,7 @@ export default function IndexPage() {
 
           <div className="w-full">
             <div className="scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch flex min-h-[300px] flex-col space-y-4 overflow-y-auto rounded border border-gray-400 p-4">
-              {chatHistory.map((chat, index) => {
+              {[INITIAL_MESSAGE, ...chatHistory].map((chat, index) => {
                 return (
                   <div className="chat-message" key={index}>
                     <div
