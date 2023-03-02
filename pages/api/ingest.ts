@@ -54,7 +54,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     chunkSize: 1000,
     chunkOverlap: 200,
   })
-  const docs = textSplitter.splitDocuments([rawDocs])
+  const docs = await textSplitter.splitDocuments([rawDocs])
 
   const pinecone = new PineconeClient()
   await pinecone.init({
@@ -67,6 +67,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     index,
     docs,
     new OpenAIEmbeddings({
+      modelName: "text-embedding-ada-002",
       openAIApiKey: openaiApiKey,
     })
   )
