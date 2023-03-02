@@ -3,6 +3,7 @@ import { CredentialsProvider } from "@/context/credentials-context"
 import { Inter as FontSans } from "@next/font/google"
 import { ThemeProvider } from "next-themes"
 
+import { Toaster } from "@/components/ui/toaster"
 import "@/styles/globals.css"
 
 const fontSans = FontSans({
@@ -22,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <CredentialsProvider>
           <Component {...pageProps} />
+          <Toaster />
         </CredentialsProvider>
       </ThemeProvider>
     </>

@@ -14,29 +14,33 @@ export default async function handler(
   const { question, chatHistory, credentials } = req.body
   const pinecone = new PineconeClient()
 
-  await pinecone.init({
-    environment: "us-west1-gcp",
-    apiKey: credentials.pineconeApiKey,
-  })
+  try {
+    await pinecone.init({
+      environment: "us-west1-gcp",
+      apiKey: credentials.pineconeApiKey,
+    })
 
-  const index = pinecone.Index(PINECONE_INDEX_NAME)
-  const vectorStore = await PineconeStore.fromExistingIndex(
-    index,
-    new OpenAIEmbeddings({
+    const index = pinecone.Index(PINECONE_INDEX_NAME)
+    const vectorStore = await PineconeStore.fromExistingIndex(
+      index,
+      new OpenAIEmbeddings({
+        openAIApiKey: credentials.openaiApiKey,
+      })
+    )
+
+    const model = new OpenAI({
       openAIApiKey: credentials.openaiApiKey,
     })
-  )
 
-  const model = new OpenAI({
-    openAIApiKey: credentials.openaiApiKey,
-  })
+    const chain = ChatVectorDBQAChain.fromLLM(model, vectorStore)
+    const response = await chain.call({
+      question,
+      max_tokens: 500, // todo: pick up a sensible value
+      chat_history: chatHistory || [],
+    })
 
-  const chain = ChatVectorDBQAChain.fromLLM(model, vectorStore)
-  const response = await chain.call({
-    question,
-    max_tokens: 500, // todo: pick up a sensible value
-    chat_history: chatHistory || [],
-  })
-
-  res.status(200).json(response)
+    res.status(200).json(response)
+  } catch (e) {
+    res.status(500).json({ error: e.message || "Unknown error." })
+  }
 }

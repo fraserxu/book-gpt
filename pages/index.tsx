@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import { useCredentials } from "@/context/credentials-context"
+import { useToast } from "@/hooks/use-toast"
 import { Bot, Loader2, Send, UploadCloud, User } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
@@ -24,6 +25,7 @@ export default function IndexPage() {
   const [isAsking, setIsAsking] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
   const credentials = useCredentials()
+  const { toast } = useToast()
 
   const handleQueryChange = (e) => {
     setQuestion(e.target.value)
@@ -42,12 +44,31 @@ export default function IndexPage() {
     })
 
     setIsUploading(true)
-    await fetch("/api/ingest", {
-      method: "post",
-      body: formData,
-    })
-    setIsUploading(false)
-  }, [files, credentials])
+    try {
+      const response = await fetch("/api/ingest", {
+        method: "post",
+        body: formData,
+      })
+      const result = await response.json()
+      if (result.ok) {
+        toast({
+          title: "Upload success.",
+        })
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: result.error,
+        })
+      }
+
+      setIsUploading(false)
+    } catch (e) {
+      toast({
+        title: "Something went wrong.",
+      })
+      setIsUploading(false)
+    }
+  }, [files, credentials, toast])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -86,16 +107,24 @@ export default function IndexPage() {
     })
     const answer = await response.json()
 
-    setChatHistory((currentChatHistory) => [
-      ...currentChatHistory,
-      {
-        from: "bot",
-        content: answer.text,
-      },
-    ])
+    if (answer.text) {
+      setChatHistory((currentChatHistory) => [
+        ...currentChatHistory,
+        {
+          from: "bot",
+          content: answer.text,
+        },
+      ])
 
-    setIsAsking(false)
-  }, [question, chatHistory, credentials])
+      setIsAsking(false)
+    } else {
+      setIsAsking(false)
+      toast({
+        title: "Something went wrong.",
+        description: answer.error,
+      })
+    }
+  }, [question, chatHistory, credentials, toast])
 
   const handleKeyPress = useCallback(
     async (event) => {
