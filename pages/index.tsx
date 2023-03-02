@@ -105,8 +105,8 @@ export default function IndexPage() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <section className="container flex justify-items-stretch gap-6 pt-6 pb-8 md:py-10">
-        <div className="flex min-w-[500px] flex-col items-start gap-2 ">
+      <section className="container flex flex-col justify-items-stretch gap-6 pt-6 pb-8 sm:flex-row md:py-10">
+        <div className="min-w-1/5 flex flex-col items-start gap-2">
           <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
             Upload a book
           </h2>
@@ -222,7 +222,14 @@ export default function IndexPage() {
                   className="mr-2 w-full rounded-md border border-gray-400 pl-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
                 />
                 <div className="items-center sm:flex">
-                  <Button onClick={handleSubmit}>
+                  <Button
+                    disabled={
+                      isAsking ||
+                      !credentials.openaiApiKey ||
+                      !credentials.pineconeApiKey
+                    }
+                    onClick={handleSubmit}
+                  >
                     {!isAsking ? (
                       <Send className="h-4 w-4" />
                     ) : (
