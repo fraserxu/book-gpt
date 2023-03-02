@@ -50,14 +50,14 @@ export default function IndexPage() {
         body: formData,
       })
       const result = await response.json()
-      if (result.ok) {
-        toast({
-          title: "Upload success.",
-        })
-      } else {
+      if (result.error) {
         toast({
           title: "Something went wrong.",
           description: result.error,
+        })
+      } else {
+        toast({
+          title: "Upload success.",
         })
       }
 
