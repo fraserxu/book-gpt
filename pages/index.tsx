@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import { useCredentials } from "@/context/credentials-context"
+import { useToast } from "@/hooks/use-toast"
 import { Bot, Loader2, Send, UploadCloud, User } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
@@ -24,6 +25,7 @@ export default function IndexPage() {
   const [isAsking, setIsAsking] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
   const credentials = useCredentials()
+  const { toast } = useToast()
 
   const handleQueryChange = (e) => {
     setQuestion(e.target.value)
@@ -42,12 +44,31 @@ export default function IndexPage() {
     })
 
     setIsUploading(true)
-    await fetch("/api/ingest", {
-      method: "post",
-      body: formData,
-    })
-    setIsUploading(false)
-  }, [files, credentials])
+    try {
+      const response = await fetch("/api/ingest", {
+        method: "post",
+        body: formData,
+      })
+      const result = await response.json()
+      if (result.ok) {
+        toast({
+          title: "Upload success.",
+        })
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: result.error,
+        })
+      }
+
+      setIsUploading(false)
+    } catch (e) {
+      toast({
+        title: "Something went wrong.",
+      })
+      setIsUploading(false)
+    }
+  }, [files, credentials, toast])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -86,16 +107,33 @@ export default function IndexPage() {
     })
     const answer = await response.json()
 
-    setChatHistory((currentChatHistory) => [
-      ...currentChatHistory,
-      {
-        from: "bot",
-        content: answer.text,
-      },
-    ])
+    if (answer.text) {
+      setChatHistory((currentChatHistory) => [
+        ...currentChatHistory,
+        {
+          from: "bot",
+          content: answer.text,
+        },
+      ])
 
-    setIsAsking(false)
-  }, [question, chatHistory, credentials])
+      setIsAsking(false)
+    } else {
+      setIsAsking(false)
+      toast({
+        title: "Something went wrong.",
+        description: answer.error,
+      })
+    }
+  }, [question, chatHistory, credentials, toast])
+
+  const handleKeyPress = useCallback(
+    async (event) => {
+      if (event.key === "Enter") {
+        handleSubmit()
+      }
+    },
+    [handleSubmit]
+  )
 
   return (
     <Layout>
@@ -105,8 +143,8 @@ export default function IndexPage() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <section className="container flex justify-items-stretch gap-6 pt-6 pb-8 md:py-10">
-        <div className="flex min-w-[500px] flex-col items-start gap-2 ">
+      <section className="container flex flex-col justify-items-stretch gap-6 pt-6 pb-8 sm:flex-row md:py-10">
+        <div className="min-w-1/5 flex flex-col items-start gap-2">
           <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
             Upload a book
           </h2>
@@ -220,9 +258,17 @@ export default function IndexPage() {
                   placeholder={DEFAULT_QUESTION}
                   onChange={handleQueryChange}
                   className="mr-2 w-full rounded-md border border-gray-400 pl-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                  onKeyPress={handleKeyPress}
                 />
                 <div className="items-center sm:flex">
-                  <Button onClick={handleSubmit}>
+                  <Button
+                    disabled={
+                      isAsking ||
+                      !credentials.openaiApiKey ||
+                      !credentials.pineconeApiKey
+                    }
+                    onClick={handleSubmit}
+                  >
                     {!isAsking ? (
                       <Send className="h-4 w-4" />
                     ) : (
