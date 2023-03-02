@@ -97,6 +97,15 @@ export default function IndexPage() {
     setIsAsking(false)
   }, [question, chatHistory, credentials])
 
+  const handleKeyPress = useCallback(
+    async (event) => {
+      if (event.key === "Enter") {
+        handleSubmit()
+      }
+    },
+    [handleSubmit]
+  )
+
   return (
     <Layout>
       <Head>
@@ -220,6 +229,7 @@ export default function IndexPage() {
                   placeholder={DEFAULT_QUESTION}
                   onChange={handleQueryChange}
                   className="mr-2 w-full rounded-md border border-gray-400 pl-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                  onKeyPress={handleKeyPress}
                 />
                 <div className="items-center sm:flex">
                   <Button
