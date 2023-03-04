@@ -24,7 +24,7 @@ export function CredentialsCookieProvider({ children }) {
   }, [])
 
   const setAndSaveCookieValue = (value) => {
-    cookies.set(credentials_cookie_key, JSON.stringify(value))
+    cookies.set(credentials_cookie_key, JSON.stringify(value), { expires: 7 })
     setCookieValue(value)
   }
 

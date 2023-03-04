@@ -65,7 +65,8 @@ export default function CredentailsPage() {
                 <DialogTitle>Add credentials</DialogTitle>
                 <DialogDescription>
                   We will need these credentials in order to making API calls to
-                  OpenAI and Pinecone. Your credentials will be not be stored
+                  OpenAI and Pinecone. Your credentials will be saved in browser
+                  cookie and expire in 7 days, you data will never be stored
                   anywhere in the server.
                 </DialogDescription>
               </DialogHeader>
