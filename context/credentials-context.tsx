@@ -1,52 +1,42 @@
-import { createContext, useContext, useReducer } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
+import cookies from "js-cookie"
 
-const CredentialsContext = createContext(null)
-const CredentialsDispatchContext = createContext(null)
-
-export function CredentialsProvider({ children }) {
-  const [credentials, dispatch] = useReducer(
-    credentialsReducer,
-    initialCredentials
-  )
-
-  return (
-    <CredentialsContext.Provider value={credentials}>
-      <CredentialsDispatchContext.Provider value={dispatch}>
-        {children}
-      </CredentialsDispatchContext.Provider>
-    </CredentialsContext.Provider>
-  )
-}
-
-export function useCredentials() {
-  return useContext(CredentialsContext)
-}
-
-export function useCredentialsDispatch() {
-  return useContext(CredentialsDispatchContext)
-}
-
-function credentialsReducer(credentials, action) {
-  switch (action.type) {
-    case "added-openai-api-key": {
-      return {
-        ...credentials,
-        openaiApiKey: action.openaiApiKey,
-      }
-    }
-    case "added-pinecone-api-key": {
-      return {
-        ...credentials,
-        pineconeApiKey: action.pineconeApiKey,
-      }
-    }
-    default: {
-      throw Error("Unknown action: " + action.type)
-    }
-  }
-}
-
+const credentials_cookie_key = "credentials"
 const initialCredentials = {
   openaiApiKey: "",
   pineconeApiKey: "",
+}
+
+const CredentailsCookieContext = createContext({
+  cookieValue: null,
+  setAndSaveCookieValue: null,
+})
+
+export function CredentialsCookieProvider({ children }) {
+  const [cookieValue, setCookieValue] = useState(initialCredentials)
+
+  useEffect(() => {
+    const valuesFromCookie = cookies.get(credentials_cookie_key)
+
+    if (valuesFromCookie) {
+      setCookieValue(JSON.parse(valuesFromCookie))
+    }
+  }, [])
+
+  const setAndSaveCookieValue = (value) => {
+    cookies.set(credentials_cookie_key, JSON.stringify(value))
+    setCookieValue(value)
+  }
+
+  return (
+    <CredentailsCookieContext.Provider
+      value={{ cookieValue, setAndSaveCookieValue }}
+    >
+      {children}
+    </CredentailsCookieContext.Provider>
+  )
+}
+
+export function useCredentialsCookie() {
+  return useContext(CredentailsCookieContext)
 }
