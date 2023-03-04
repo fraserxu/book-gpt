@@ -48,7 +48,7 @@ export default function CredentailsPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <section className="container flex justify-items-stretch gap-6 pt-6 pb-8 md:py-10">
-        <div className="flex min-w-[500px] flex-col items-start gap-2 ">
+        <div className="flex flex-col items-start gap-2 ">
           <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
             Add credentials
           </h2>
@@ -158,7 +158,8 @@ export default function CredentailsPage() {
                 />
               </li>
               <li>
-                3. Create a index with the following settings{" "}
+                3. Create a index called <b>book-gpt</b> with the following
+                settings:{" "}
                 <Image
                   className="p-4"
                   src="/screenshot/pinecone-index.png"
