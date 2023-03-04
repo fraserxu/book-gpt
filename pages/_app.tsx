@@ -1,5 +1,5 @@
 import type { AppProps } from "next/app"
-import { CredentialsProvider } from "@/context/credentials-context"
+import { CredentialsCookieProvider } from "@/context/credentials-context"
 import { Inter as FontSans } from "@next/font/google"
 import { ThemeProvider } from "next-themes"
 
@@ -21,10 +21,10 @@ export default function App({ Component, pageProps }: AppProps) {
 				}
 			}`}</style>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <CredentialsProvider>
+        <CredentialsCookieProvider>
           <Component {...pageProps} />
           <Toaster />
-        </CredentialsProvider>
+        </CredentialsCookieProvider>
       </ThemeProvider>
     </>
   )

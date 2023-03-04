@@ -1,11 +1,8 @@
-import React from "react"
+import React, { useState } from "react"
 import Head from "next/head"
 import Image from "next/image"
 import Link from "next/link"
-import {
-  useCredentials,
-  useCredentialsDispatch,
-} from "@/context/credentials-context"
+import { useCredentialsCookie } from "@/context/credentials-context"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { FileKey } from "lucide-react"
 
@@ -23,19 +20,23 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function CredentailsPage() {
-  const credentials = useCredentials()
-  const dispatch = useCredentialsDispatch()
+  const { cookieValue, setAndSaveCookieValue } = useCredentialsCookie()
+  const [openaiApiKey, setOpenaiApiKey] = useState(cookieValue.openaiApiKey)
+  const [pineconeApiKey, setPineconeApiKey] = useState(
+    cookieValue.pineconeApiKey
+  )
 
   const handleOpenaiApiKeyChange = (e) => {
-    dispatch({
-      type: "added-openai-api-key",
-      openaiApiKey: e.target.value,
-    })
+    setOpenaiApiKey(e.target.value)
   }
   const handlePineconeApiKeyChange = (e) => {
-    dispatch({
-      type: "added-pinecone-api-key",
-      pineconeApiKey: e.target.value,
+    setPineconeApiKey(e.target.value)
+  }
+
+  const handleSaveCredentials = () => {
+    setAndSaveCookieValue({
+      openaiApiKey,
+      pineconeApiKey,
     })
   }
 
@@ -64,7 +65,8 @@ export default function CredentailsPage() {
                 <DialogTitle>Add credentials</DialogTitle>
                 <DialogDescription>
                   We will need these credentials in order to making API calls to
-                  OpenAI and Pinecone. Your credentials will be not be stored
+                  OpenAI and Pinecone. Your credentials will be saved in browser
+                  cookie and expire in 7 days, you data will never be stored
                   anywhere in the server.
                 </DialogDescription>
               </DialogHeader>
@@ -75,7 +77,7 @@ export default function CredentailsPage() {
                   </Label>
                   <Input
                     id="openai-api-key"
-                    value={credentials.openaiApiKey}
+                    value={openaiApiKey}
                     placeholder="sk-***************************"
                     className="col-span-3"
                     onChange={handleOpenaiApiKeyChange}
@@ -87,7 +89,7 @@ export default function CredentailsPage() {
                   </Label>
                   <Input
                     id="pinecone-api-key"
-                    value={credentials.pineconeApiKey}
+                    value={pineconeApiKey}
                     placeholder="*****-****-****"
                     className="col-span-3"
                     onChange={handlePineconeApiKeyChange}
@@ -95,7 +97,7 @@ export default function CredentailsPage() {
                 </div>
               </div>
               <DialogPrimitive.Close asChild>
-                <Button>Save changes</Button>
+                <Button onClick={handleSaveCredentials}>Save changes</Button>
               </DialogPrimitive.Close>
             </DialogContent>
           </Dialog>

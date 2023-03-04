@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
-import { useCredentials } from "@/context/credentials-context"
+import { useCredentialsCookie } from "@/context/credentials-context"
 import { useToast } from "@/hooks/use-toast"
 import { Bot, Loader2, Send, UploadCloud, User } from "lucide-react"
 import { useDropzone } from "react-dropzone"
@@ -24,7 +24,8 @@ export default function IndexPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [isAsking, setIsAsking] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
-  const credentials = useCredentials()
+  const { cookieValue } = useCredentialsCookie()
+
   const { toast } = useToast()
 
   const handleQueryChange = (e) => {
@@ -37,8 +38,8 @@ export default function IndexPage() {
 
   const handleUpload = useCallback(async () => {
     const formData = new FormData()
-    formData.append("openai-api-key", credentials.openaiApiKey)
-    formData.append("pinecone-api-key", credentials.pineconeApiKey)
+    formData.append("openai-api-key", cookieValue.openaiApiKey)
+    formData.append("pinecone-api-key", cookieValue.pineconeApiKey)
     Array.from(files).forEach((file: File) => {
       formData.append("file", file)
     })
@@ -68,7 +69,7 @@ export default function IndexPage() {
       })
       setIsUploading(false)
     }
-  }, [files, credentials, toast])
+  }, [files, cookieValue, toast])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -93,7 +94,7 @@ export default function IndexPage() {
 
     const response = await fetch("/api/chat", {
       body: JSON.stringify({
-        credentials,
+        credentials: cookieValue,
         question,
         chatHistory: chatHistory.reduce((prev, curr) => {
           prev += curr.content
@@ -124,9 +125,9 @@ export default function IndexPage() {
         description: answer.error,
       })
     }
-  }, [question, chatHistory, credentials, toast])
+  }, [question, chatHistory, cookieValue, toast])
 
-  const handleKeyPress = useCallback(
+  const handleKeyDown = useCallback(
     async (event) => {
       if (event.key === "Enter") {
         handleSubmit()
@@ -187,8 +188,8 @@ export default function IndexPage() {
               disabled={
                 !files ||
                 isUploading ||
-                !credentials.openaiApiKey ||
-                !credentials.pineconeApiKey
+                !cookieValue.openaiApiKey ||
+                !cookieValue.pineconeApiKey
               }
               onClick={handleUpload}
             >
@@ -258,14 +259,14 @@ export default function IndexPage() {
                   placeholder={DEFAULT_QUESTION}
                   onChange={handleQueryChange}
                   className="mr-2 w-full rounded-md border border-gray-400 pl-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                 />
                 <div className="items-center sm:flex">
                   <Button
                     disabled={
                       isAsking ||
-                      !credentials.openaiApiKey ||
-                      !credentials.pineconeApiKey
+                      !cookieValue.openaiApiKey ||
+                      !cookieValue.pineconeApiKey
                     }
                     onClick={handleSubmit}
                   >
