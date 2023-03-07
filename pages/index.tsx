@@ -41,7 +41,7 @@ export default function IndexPage() {
     formData.append("openai-api-key", cookieValue.openaiApiKey)
     formData.append("pinecone-api-key", cookieValue.pineconeApiKey)
     Array.from(files).forEach((file: File) => {
-      formData.append("file", file)
+      formData.append(file.name, file)
     })
 
     setIsUploading(true)
@@ -77,8 +77,6 @@ export default function IndexPage() {
       "application/pdf": [".pdf"],
       "text/plain": [".txt", ".md"],
     },
-    multiple: false,
-    maxFiles: 1,
   })
 
   const handleSubmit = useCallback(async () => {
@@ -147,7 +145,7 @@ export default function IndexPage() {
       <section className="container flex flex-col justify-items-stretch gap-6 pt-6 pb-8 sm:flex-row md:py-10">
         <div className="min-w-1/5 flex flex-col items-start gap-2">
           <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
-            Upload a book
+            Upload one or multiple books
           </h2>
           <div
             className="min-w-full rounded-md border border-slate-200 p-0 dark:border-slate-700"
@@ -157,15 +155,19 @@ export default function IndexPage() {
               <input {...getInputProps()} />
 
               {files ? (
-                <p>{files[0].name}</p>
+                <ul>
+                  {files.map((file) => (
+                    <li key={file.name}>* {file.name}</li>
+                  ))}
+                </ul>
               ) : (
                 <>
                   {isDragActive ? (
                     <p>Drop the files here ...</p>
                   ) : (
                     <p>
-                      Drag and drop a file(.pdf, .txt, .md) here, or click to
-                      select file
+                      Drag and drop files(.pdf, .txt, .md) here, or click to
+                      select files
                     </p>
                   )}
                 </>

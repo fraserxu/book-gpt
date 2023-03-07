@@ -18,11 +18,26 @@ export const formidablePromise = (
   })
 }
 
-export const fileConsumer = <T = unknown>(acc: T[]) => {
+export const fileConsumer = (
+  file: formidable.file,
+  endBuffers: {
+    [filename: string]: Buffer
+  }
+) => {
+  const chunks = []
+
   const writable = new Writable({
     write: (chunk, _enc, next) => {
-      acc.push(chunk)
+      chunks.push(chunk)
       next()
+    },
+    destroy() {
+      endBuffers = {}
+    },
+    final(cb) {
+      const buffer = Buffer.concat(chunks)
+      endBuffers[file.newFilename] = buffer
+      cb()
     },
   })
 
