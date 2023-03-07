@@ -36,7 +36,6 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const docs = await Promise.all(
     Object.values(files).map(async (fileObj: formidable.file) => {
-      console.log(fileObj)
       let fileText = ""
       const fileData = endBuffers[fileObj.newFilename]
       switch (fileObj.mimetype) {
