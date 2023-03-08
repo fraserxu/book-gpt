@@ -29,6 +29,7 @@ export default async function handler(
     )
 
     const model = new OpenAI({
+      modelName: "gpt-3.5-turbo",
       openAIApiKey: credentials.openaiApiKey,
     })
 
