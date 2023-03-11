@@ -8,6 +8,7 @@ import { PineconeStore } from "langchain/vectorstores"
 
 import { fileConsumer, formidablePromise } from "@/lib/formidable"
 import { getTextContentFromPDF } from "@/lib/pdf"
+import { chunk } from "@/lib/utils"
 
 const PINECONE_INDEX_NAME = "book-gpt"
 
@@ -71,16 +72,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const index = pinecone.Index(PINECONE_INDEX_NAME)
     const chunkSize = 100
-    const chunks = []
-    for (let i = 0; i < flatDocs.length; i += chunkSize) {
-      const chunk = flatDocs.slice(i, i + chunkSize)
-      if (chunk.length < chunkSize && i + chunkSize < flatDocs.length) {
-        const diff = chunkSize - chunk.length
-        const remaining = flatDocs.slice(i + chunkSize, i + chunkSize + diff)
-        chunk.push(...remaining)
-      }
-      chunks.push(chunk)
-    }
+    const chunks = chunk(flatDocs, chunkSize)
 
     await Promise.all(
       chunks.map((chunk) => {
