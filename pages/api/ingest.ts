@@ -8,6 +8,7 @@ import { PineconeStore } from "langchain/vectorstores"
 
 import { fileConsumer, formidablePromise } from "@/lib/formidable"
 import { getTextContentFromPDF } from "@/lib/pdf"
+import { chunk } from "@/lib/utils"
 
 const PINECONE_INDEX_NAME = "book-gpt"
 
@@ -70,12 +71,19 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
 
     const index = pinecone.Index(PINECONE_INDEX_NAME)
-    await PineconeStore.fromDocuments(
-      index,
-      flatDocs,
-      new OpenAIEmbeddings({
-        modelName: "text-embedding-ada-002",
-        openAIApiKey: openaiApiKey,
+    const chunkSize = 100
+    const chunks = chunk(flatDocs, chunkSize)
+
+    await Promise.all(
+      chunks.map((chunk) => {
+        return PineconeStore.fromDocuments(
+          index,
+          chunk,
+          new OpenAIEmbeddings({
+            modelName: "text-embedding-ada-002",
+            openAIApiKey: openaiApiKey,
+          })
+        )
       })
     )
 
