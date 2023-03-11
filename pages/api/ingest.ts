@@ -70,12 +70,28 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
 
     const index = pinecone.Index(PINECONE_INDEX_NAME)
-    await PineconeStore.fromDocuments(
-      index,
-      flatDocs,
-      new OpenAIEmbeddings({
-        modelName: "text-embedding-ada-002",
-        openAIApiKey: openaiApiKey,
+    const chunkSize = 100
+    const chunks = []
+    for (let i = 0; i < flatDocs.length; i += chunkSize) {
+      const chunk = flatDocs.slice(i, i + chunkSize)
+      if (chunk.length < chunkSize && i + chunkSize < flatDocs.length) {
+        const diff = chunkSize - chunk.length
+        const remaining = flatDocs.slice(i + chunkSize, i + chunkSize + diff)
+        chunk.push(...remaining)
+      }
+      chunks.push(chunk)
+    }
+
+    await Promise.all(
+      chunks.map((chunk) => {
+        return PineconeStore.fromDocuments(
+          index,
+          chunk,
+          new OpenAIEmbeddings({
+            modelName: "text-embedding-ada-002",
+            openAIApiKey: openaiApiKey,
+          })
+        )
       })
     )
 
