@@ -3,6 +3,7 @@ import Head from "next/head"
 import Link from "next/link"
 import { useCredentialsCookie } from "@/context/credentials-context"
 import { useToast } from "@/hooks/use-toast"
+import { fetchEventSource } from "@microsoft/fetch-event-source"
 import { Bot, Loader2, Send, UploadCloud, User } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
@@ -90,7 +91,12 @@ export default function IndexPage() {
       },
     ])
 
-    const response = await fetch("/api/chat", {
+    const ctrl = new AbortController()
+    fetchEventSource("/api/chat-sse", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         credentials: cookieValue,
         question,
@@ -99,31 +105,42 @@ export default function IndexPage() {
           return prev
         }, ""),
       }),
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
+      signal: ctrl.signal,
+      onmessage: (event) => {
+        if (event.data === "[START]") {
+          setChatHistory((currentChatHistory) => {
+            return [
+              ...currentChatHistory,
+              {
+                from: "bot",
+                content: "",
+              },
+            ]
+          })
+        } else if (event.data === "[DONE]") {
+          setIsAsking(false)
+          ctrl.abort()
+        } else {
+          const response = JSON.parse(event.data)
+          setChatHistory((currentChatHistory) => {
+            const previousHistory = currentChatHistory.slice(
+              0,
+              currentChatHistory.length - 1
+            )
+            const lastMessage =
+              currentChatHistory[currentChatHistory.length - 1]
+            return [
+              ...previousHistory,
+              {
+                from: "bot",
+                content: lastMessage.content + response.data,
+              },
+            ]
+          })
+        }
       },
     })
-    const answer = await response.json()
-
-    if (answer.text) {
-      setChatHistory((currentChatHistory) => [
-        ...currentChatHistory,
-        {
-          from: "bot",
-          content: answer.text,
-        },
-      ])
-
-      setIsAsking(false)
-    } else {
-      setIsAsking(false)
-      toast({
-        title: "Something went wrong.",
-        description: answer.error,
-      })
-    }
-  }, [question, chatHistory, cookieValue, toast])
+  }, [question, chatHistory, cookieValue])
 
   const handleKeyDown = useCallback(
     async (event) => {
