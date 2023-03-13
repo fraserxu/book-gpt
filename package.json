@@ -13,6 +13,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@next/font": "^13.1.6",
     "@pinecone-database/pinecone": "^0.0.10",
     "@radix-ui/react-accessible-icon": "^1.0.1",
