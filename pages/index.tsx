@@ -17,6 +17,7 @@ const INITIAL_MESSAGE = {
   content:
     "You can think me as your knowledge base, once you uploaded a book, the knowledge will be persisted in the database. You can come back at any time to ask questions about them, across multiple books.",
 }
+const DEFAULT_GITHUB_URL = "https://github.com/fraserxu/book-gpt/tree/main"
 
 export default function IndexPage() {
   const [files, setFiles] = useState(null)
@@ -25,9 +26,13 @@ export default function IndexPage() {
   const [isAsking, setIsAsking] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
   const { cookieValue } = useCredentialsCookie()
+  const [githubUrl, setGithubUrl] = useState("")
 
   const { toast } = useToast()
 
+  const handleGithubUrlChange = (e) => {
+    setGithubUrl(e.target.value)
+  }
   const handleQueryChange = (e) => {
     setQuestion(e.target.value)
   }
@@ -70,6 +75,40 @@ export default function IndexPage() {
       setIsUploading(false)
     }
   }, [files, cookieValue, toast])
+
+  const handleGithubUpload = useCallback(async () => {
+    setIsUploading(true)
+    try {
+      const response = await fetch("/api/github", {
+        body: JSON.stringify({
+          credentials: cookieValue,
+          githubUrl,
+        }),
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+      })
+      const result = await response.json()
+      if (result.error) {
+        toast({
+          title: "Something went wrong.",
+          description: result.error,
+        })
+      } else {
+        toast({
+          title: "Upload success.",
+        })
+      }
+
+      setIsUploading(false)
+    } catch (e) {
+      toast({
+        title: "Something went wrong.",
+      })
+      setIsUploading(false)
+    }
+  }, [githubUrl, cookieValue, toast])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -174,6 +213,60 @@ export default function IndexPage() {
               )}
             </div>
           </div>
+
+          <div className="self-start">
+            <Button
+              disabled={
+                !files ||
+                isUploading ||
+                !cookieValue.openaiApiKey ||
+                !cookieValue.pineconeApiKey
+              }
+              className="mt-2"
+              onClick={handleUpload}
+            >
+              {!isUploading ? (
+                <UploadCloud className="mr-2 h-4 w-4" />
+              ) : (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Upload
+            </Button>
+          </div>
+
+          <div className="min-w-full my-2 py-4 sm:mb-0">
+            <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
+              Or provide a url to a Github docs folder
+            </h2>
+            <div className="my-2 w-full">
+              <input
+                type="text"
+                value={githubUrl}
+                placeholder={DEFAULT_GITHUB_URL}
+                onChange={handleGithubUrlChange}
+                className="p-2 w-full rounded-md border border-gray-400 pl-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+              />
+            </div>
+
+            <Button
+              disabled={
+                !githubUrl ||
+                isUploading ||
+                !cookieValue.openaiApiKey ||
+                !cookieValue.pineconeApiKey
+              }
+              onClick={handleGithubUpload}
+              className="mt-2"
+            >
+              {!isUploading ? (
+                <UploadCloud className="mr-2 h-4 w-4" />
+              ) : (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Upload
+            </Button>
+          </div>
+
           <div>
             This app needs you to{" "}
             <Link
@@ -184,24 +277,6 @@ export default function IndexPage() {
               add credentials
             </Link>{" "}
             to work properly.
-          </div>
-          <div className="self-start">
-            <Button
-              disabled={
-                !files ||
-                isUploading ||
-                !cookieValue.openaiApiKey ||
-                !cookieValue.pineconeApiKey
-              }
-              onClick={handleUpload}
-            >
-              {!isUploading ? (
-                <UploadCloud className="mr-2 h-4 w-4" />
-              ) : (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Upload
-            </Button>
           </div>
         </div>
 
