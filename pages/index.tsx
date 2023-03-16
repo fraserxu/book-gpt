@@ -234,7 +234,7 @@ export default function IndexPage() {
             </Button>
           </div>
 
-          <div className="min-w-full my-2 py-4 sm:mb-0">
+          <div className="my-2 min-w-full py-4 sm:mb-0">
             <h2 className="mt-10 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
               Or provide a url to a Github docs folder
             </h2>
@@ -244,7 +244,7 @@ export default function IndexPage() {
                 value={githubUrl}
                 placeholder={DEFAULT_GITHUB_URL}
                 onChange={handleGithubUrlChange}
-                className="p-2 w-full rounded-md border border-gray-400 pl-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                className="w-full rounded-md border border-gray-400 p-2 text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
               />
             </div>
 

@@ -200,7 +200,7 @@ export default function CredentailsPage() {
                 >
                   Github Personal Token
                 </Link>{" "}
-                to ingest markdown files from a public Github repo. You don't
+                to ingest markdown files from a public Github repo. You do not
                 need to select any scopes for this script.
                 <Image
                   className="p-4"
