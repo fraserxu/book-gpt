@@ -25,6 +25,9 @@ export default function CredentailsPage() {
   const [pineconeApiKey, setPineconeApiKey] = useState(
     cookieValue.pineconeApiKey
   )
+  const [githubPersonalToken, setGithubPersonalToken] = useState(
+    cookieValue.githubPersonalToken
+  )
 
   const handleOpenaiApiKeyChange = (e) => {
     setOpenaiApiKey(e.target.value)
@@ -32,11 +35,15 @@ export default function CredentailsPage() {
   const handlePineconeApiKeyChange = (e) => {
     setPineconeApiKey(e.target.value)
   }
+  const handleGithubPersonalTokenChange = (e) => {
+    setGithubPersonalToken(e.target.value)
+  }
 
   const handleSaveCredentials = () => {
     setAndSaveCookieValue({
       openaiApiKey,
       pineconeApiKey,
+      githubPersonalToken,
     })
   }
 
@@ -93,6 +100,19 @@ export default function CredentailsPage() {
                     placeholder="*****-****-****"
                     className="col-span-3"
                     onChange={handlePineconeApiKeyChange}
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="github-personal-token" className="text-right">
+                    Github Personal Token
+                  </Label>
+                  <Input
+                    id="github-personal-token"
+                    value={githubPersonalToken}
+                    placeholder="ghp_***************************"
+                    className="col-span-3"
+                    onChange={handleGithubPersonalTokenChange}
                   />
                 </div>
               </div>
@@ -166,6 +186,26 @@ export default function CredentailsPage() {
                   className="p-4"
                   src="/screenshot/pinecone-index.png"
                   alt="Create a new index in Pinecone"
+                  width={500}
+                  height={500}
+                />
+              </li>
+              <li>
+                4. [Optional] Create a{" "}
+                <Link
+                  className="cursor-pointer text-blue-500 hover:text-blue-700 hover:underline"
+                  href="https://github.com/settings/tokens"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Github Personal Token
+                </Link>{" "}
+                to ingest markdown files from a public Github repo. You do not
+                need to select any scopes for this script.
+                <Image
+                  className="p-4"
+                  src="/screenshot/github-personal-token.png"
+                  alt="Create a new Github personal token"
                   width={500}
                   height={500}
                 />

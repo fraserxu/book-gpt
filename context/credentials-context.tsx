@@ -5,6 +5,7 @@ const credentials_cookie_key = "credentials"
 const initialCredentials = {
   openaiApiKey: "",
   pineconeApiKey: "",
+  githubPersonalToken: "",
 }
 
 const CredentailsCookieContext = createContext({
