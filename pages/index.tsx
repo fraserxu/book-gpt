@@ -3,7 +3,6 @@ import Head from "next/head"
 import Link from "next/link"
 import { useCredentialsCookie } from "@/context/credentials-context"
 import { useToast } from "@/hooks/use-toast"
-import { fetchEventSource } from "@microsoft/fetch-event-source"
 import { Bot, Loader2, Send, UploadCloud, User } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
@@ -91,8 +90,7 @@ export default function IndexPage() {
       },
     ])
 
-    const ctrl = new AbortController()
-    fetchEventSource("/api/chat-sse", {
+    const response = await fetch("/api/chat-sse", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -105,41 +103,58 @@ export default function IndexPage() {
           return prev
         }, ""),
       }),
-      signal: ctrl.signal,
-      onmessage: (event) => {
-        if (event.data === "[START]") {
-          setChatHistory((currentChatHistory) => {
-            return [
-              ...currentChatHistory,
-              {
-                from: "bot",
-                content: "",
-              },
-            ]
-          })
-        } else if (event.data === "[DONE]") {
-          setIsAsking(false)
-          ctrl.abort()
-        } else {
-          const response = JSON.parse(event.data)
-          setChatHistory((currentChatHistory) => {
-            const previousHistory = currentChatHistory.slice(
-              0,
-              currentChatHistory.length - 1
-            )
-            const lastMessage =
-              currentChatHistory[currentChatHistory.length - 1]
-            return [
-              ...previousHistory,
-              {
-                from: "bot",
-                content: lastMessage.content + response.data,
-              },
-            ]
-          })
-        }
-      },
+      // onmessage: (event) => {
+      //   if (event.data === "[START]") {
+      //     setChatHistory((currentChatHistory) => {
+      //       return [
+      //         ...currentChatHistory,
+      //         {
+      //           from: "bot",
+      //           content: "",
+      //         },
+      //       ]
+      //     })
+      //   } else if (event.data === "[DONE]") {
+      //     setIsAsking(false)
+      //     ctrl.abort()
+      //   } else {
+      //     const response = JSON.parse(event.data)
+      //     setChatHistory((currentChatHistory) => {
+      //       const previousHistory = currentChatHistory.slice(
+      //         0,
+      //         currentChatHistory.length - 1
+      //       )
+      //       const lastMessage =
+      //         currentChatHistory[currentChatHistory.length - 1]
+      //       return [
+      //         ...previousHistory,
+      //         {
+      //           from: "bot",
+      //           content: lastMessage.content + response.data,
+      //         },
+      //       ]
+      //     })
+      //   }
+      // },
     })
+
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+
+    const data = response.body
+    if (!data) return
+
+    const reader = data.getReader()
+    const decoder = new TextDecoder()
+
+    let done = false
+    while (!done) {
+      const { value, done: doneReading } = await reader.read()
+      done = doneReading
+      const chunkValue = decoder.decode(value)
+      console.log(chunkValue)
+    }
   }, [question, chatHistory, cookieValue])
 
   const handleKeyDown = useCallback(
