@@ -8,8 +8,6 @@ import { fetchContentFromGithubUrl } from "@/lib/github"
 import { createPineconeIndex } from "@/lib/pinecone"
 import { chunk } from "@/lib/utils"
 
-const PINECONE_INDEX_NAME = "book-gpt"
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -36,7 +34,8 @@ export default async function handler(
   try {
     const index = await createPineconeIndex({
       pineconeApiKey: credentials.pineconeApiKey,
-      pineconeIndexName: PINECONE_INDEX_NAME,
+      pineconeEnvironment: credentials.pineconeEnvironment,
+      pineconeIndexName: credentials.pineconeIndex,
     })
     const chunkSize = 100
     const chunks = chunk(flatDocs, chunkSize)
