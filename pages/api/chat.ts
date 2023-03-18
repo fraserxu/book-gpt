@@ -5,8 +5,6 @@ import { OpenAIEmbeddings } from "langchain/embeddings"
 import { OpenAI } from "langchain/llms"
 import { PineconeStore } from "langchain/vectorstores"
 
-const PINECONE_INDEX_NAME = "book-gpt"
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -16,11 +14,11 @@ export default async function handler(
 
   try {
     await pinecone.init({
-      environment: "us-west1-gcp",
+      environment: credentials.pineconeEnvironment,
       apiKey: credentials.pineconeApiKey,
     })
 
-    const index = pinecone.Index(PINECONE_INDEX_NAME)
+    const index = pinecone.Index(credentials.pineconeIndex)
     const vectorStore = await PineconeStore.fromExistingIndex(
       index,
       new OpenAIEmbeddings({
