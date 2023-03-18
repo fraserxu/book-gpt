@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import { PineconeClient } from "@pinecone-database/pinecone"
 import { ChatVectorDBQAChain } from "langchain/chains"
 import { OpenAIEmbeddings } from "langchain/embeddings"
 import { OpenAI } from "langchain/llms"
 import { PineconeStore } from "langchain/vectorstores"
+
+import { createPineconeIndex } from "@/lib/pinecone"
 
 const PINECONE_INDEX_NAME = "book-gpt"
 
@@ -12,15 +13,13 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { question, chatHistory, credentials } = req.body
-  const pinecone = new PineconeClient()
 
   try {
-    await pinecone.init({
-      environment: "us-west1-gcp",
-      apiKey: credentials.pineconeApiKey,
+    const index = await createPineconeIndex({
+      pineconeApiKey: credentials.pineconeApiKey,
+      pineconeIndexName: PINECONE_INDEX_NAME,
     })
 
-    const index = pinecone.Index(PINECONE_INDEX_NAME)
     const vectorStore = await PineconeStore.fromExistingIndex(
       index,
       new OpenAIEmbeddings({
