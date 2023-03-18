@@ -123,6 +123,7 @@ export default function CredentailsPage() {
                   <Input
                     id="pinecone-environment"
                     value={pineconeEnvironment}
+                    placeholder="us-west1-gcp"
                     className="col-span-3"
                     onChange={handlePineconeEnvironmentChange}
                   />
@@ -135,6 +136,7 @@ export default function CredentailsPage() {
                   <Input
                     id="pinecone-index"
                     value={pineconeIndex}
+                    placeholder="book-gpt"
                     className="col-span-3"
                     onChange={handlePineconeIndexChange}
                   />
@@ -217,8 +219,7 @@ export default function CredentailsPage() {
                 />
               </li>
               <li>
-                3. Create a index called <b>book-gpt</b> with the following
-                settings:{" "}
+                3. Create an index with the following settings:{" "}
                 <Image
                   className="p-4"
                   src="/screenshot/pinecone-index.png"

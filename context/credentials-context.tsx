@@ -5,7 +5,7 @@ const credentials_cookie_key = "credentials"
 const initialCredentials = {
   openaiApiKey: "",
   pineconeEnvironment: "",
-  pineconeIndex: "book-gpt",
+  pineconeIndex: "",
   pineconeApiKey: "",
   githubPersonalToken: "",
 }
