@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse, PageConfig } from "next"
-import { PineconeClient } from "@pinecone-database/pinecone"
 import formidable from "formidable"
 import { Document } from "langchain/document"
 import { OpenAIEmbeddings } from "langchain/embeddings"
@@ -8,6 +7,7 @@ import { PineconeStore } from "langchain/vectorstores"
 
 import { fileConsumer, formidablePromise } from "@/lib/formidable"
 import { getTextContentFromPDF } from "@/lib/pdf"
+import { createPineconeIndex } from "@/lib/pinecone"
 import { chunk } from "@/lib/utils"
 
 const formidableConfig = {
@@ -64,13 +64,12 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
   const flatDocs = docs.flat()
 
   try {
-    const pinecone = new PineconeClient()
-    await pinecone.init({
-      environment: pineconeEnvironment,
-      apiKey: pineconeApiKey,
+    const index = await createPineconeIndex({
+      pineconeApiKey: pineconeApiKey,
+      pineconeIndexName: pineconeIndex,
+      pineconeEnvironment: pineconeEnvironment,
     })
 
-    const index = pinecone.Index(pineconeIndex)
     const chunkSize = 100
     const chunks = chunk(flatDocs, chunkSize)
 
