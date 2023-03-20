@@ -45,6 +45,8 @@ export default function IndexPage() {
     const formData = new FormData()
     formData.append("openai-api-key", cookieValue.openaiApiKey)
     formData.append("pinecone-api-key", cookieValue.pineconeApiKey)
+    formData.append("pinecone-environment", cookieValue.pineconeEnvironment)
+    formData.append("pinecone-index", cookieValue.pineconeIndex)
     Array.from(files).forEach((file: File) => {
       formData.append(file.name, file)
     })
@@ -220,6 +222,8 @@ export default function IndexPage() {
                 !files ||
                 isUploading ||
                 !cookieValue.openaiApiKey ||
+                !cookieValue.pineconeEnvironment ||
+                !cookieValue.pineconeIndex ||
                 !cookieValue.pineconeApiKey
               }
               className="mt-2"
@@ -253,6 +257,8 @@ export default function IndexPage() {
                 !githubUrl ||
                 isUploading ||
                 !cookieValue.openaiApiKey ||
+                !cookieValue.pineconeEnvironment ||
+                !cookieValue.pineconeIndex ||
                 !cookieValue.pineconeApiKey
               }
               onClick={handleGithubUpload}
@@ -343,7 +349,9 @@ export default function IndexPage() {
                     disabled={
                       isAsking ||
                       !cookieValue.openaiApiKey ||
-                      !cookieValue.pineconeApiKey
+                      !cookieValue.pineconeApiKey ||
+                      !cookieValue.pineconeEnvironment ||
+                      !cookieValue.pineconeIndex
                     }
                     onClick={handleSubmit}
                   >

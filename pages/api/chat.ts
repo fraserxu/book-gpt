@@ -6,8 +6,6 @@ import { PineconeStore } from "langchain/vectorstores"
 
 import { createPineconeIndex } from "@/lib/pinecone"
 
-const PINECONE_INDEX_NAME = "book-gpt"
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -17,7 +15,8 @@ export default async function handler(
   try {
     const index = await createPineconeIndex({
       pineconeApiKey: credentials.pineconeApiKey,
-      pineconeIndexName: PINECONE_INDEX_NAME,
+      pineconeEnvironment: credentials.pineconeEnvironment,
+      pineconeIndexName: credentials.pineconeIndex,
     })
 
     const vectorStore = await PineconeStore.fromExistingIndex(
