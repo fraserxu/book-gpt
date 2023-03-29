@@ -22,21 +22,40 @@ import { Label } from "@/components/ui/label"
 export default function CredentailsPage() {
   const { cookieValue, setAndSaveCookieValue } = useCredentialsCookie()
   const [openaiApiKey, setOpenaiApiKey] = useState(cookieValue.openaiApiKey)
+  const [pineconeEnvironment, setPineconeEnvironment] = useState(
+    cookieValue.pineconeEnvironment
+  )
+  const [pineconeIndex, setPineconeIndex] = useState(cookieValue.pineconeIndex)
   const [pineconeApiKey, setPineconeApiKey] = useState(
     cookieValue.pineconeApiKey
+  )
+  const [githubPersonalToken, setGithubPersonalToken] = useState(
+    cookieValue.githubPersonalToken
   )
 
   const handleOpenaiApiKeyChange = (e) => {
     setOpenaiApiKey(e.target.value)
   }
+  const handlePineconeEnvironmentChange = (e) => {
+    setPineconeEnvironment(e.target.value)
+  }
+  const handlePineconeIndexChange = (e) => {
+    setPineconeIndex(e.target.value)
+  }
   const handlePineconeApiKeyChange = (e) => {
     setPineconeApiKey(e.target.value)
+  }
+  const handleGithubPersonalTokenChange = (e) => {
+    setGithubPersonalToken(e.target.value)
   }
 
   const handleSaveCredentials = () => {
     setAndSaveCookieValue({
       openaiApiKey,
+      pineconeEnvironment,
+      pineconeIndex,
       pineconeApiKey,
+      githubPersonalToken,
     })
   }
 
@@ -83,6 +102,7 @@ export default function CredentailsPage() {
                     onChange={handleOpenaiApiKeyChange}
                   />
                 </div>
+
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="pinecone-api-key" className="text-right">
                     Pinecone API Key
@@ -93,6 +113,45 @@ export default function CredentailsPage() {
                     placeholder="*****-****-****"
                     className="col-span-3"
                     onChange={handlePineconeApiKeyChange}
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="pinecone-environment" className="text-right">
+                    Pinecone Environment
+                  </Label>
+                  <Input
+                    id="pinecone-environment"
+                    value={pineconeEnvironment}
+                    placeholder="us-west1-gcp"
+                    className="col-span-3"
+                    onChange={handlePineconeEnvironmentChange}
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="pinecone-index" className="text-right">
+                    Pinecone Index Name
+                  </Label>
+                  <Input
+                    id="pinecone-index"
+                    value={pineconeIndex}
+                    placeholder="book-gpt"
+                    className="col-span-3"
+                    onChange={handlePineconeIndexChange}
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="github-personal-token" className="text-right">
+                    Github Personal Token
+                  </Label>
+                  <Input
+                    id="github-personal-token"
+                    value={githubPersonalToken}
+                    placeholder="ghp_***************************"
+                    className="col-span-3"
+                    onChange={handleGithubPersonalTokenChange}
                   />
                 </div>
               </div>
@@ -160,12 +219,31 @@ export default function CredentailsPage() {
                 />
               </li>
               <li>
-                3. Create a index called <b>book-gpt</b> with the following
-                settings:{" "}
+                3. Create an index with the following settings:{" "}
                 <Image
                   className="p-4"
                   src="/screenshot/pinecone-index.png"
                   alt="Create a new index in Pinecone"
+                  width={500}
+                  height={500}
+                />
+              </li>
+              <li>
+                4. [Optional] Create a{" "}
+                <Link
+                  className="cursor-pointer text-blue-500 hover:text-blue-700 hover:underline"
+                  href="https://github.com/settings/tokens"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Github Personal Token
+                </Link>{" "}
+                to ingest markdown files from a public Github repo. You do not
+                need to select any scopes for this script.
+                <Image
+                  className="p-4"
+                  src="/screenshot/github-personal-token.png"
+                  alt="Create a new Github personal token"
                   width={500}
                   height={500}
                 />
