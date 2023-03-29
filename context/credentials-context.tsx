@@ -1,5 +1,18 @@
+"use client"
+
 import { createContext, useContext, useEffect, useState } from "react"
 import cookies from "js-cookie"
+
+interface ICredentailsCookieContext {
+  cookieValue: {
+    openaiApiKey: string
+    pineconeEnvironment: string
+    pineconeIndex: string
+    pineconeApiKey: string
+    githubPersonalToken: string
+  }
+  setAndSaveCookieValue: (value: any) => void
+}
 
 const credentials_cookie_key = "credentials"
 const initialCredentials = {
@@ -10,9 +23,9 @@ const initialCredentials = {
   githubPersonalToken: "",
 }
 
-const CredentailsCookieContext = createContext({
-  cookieValue: null,
-  setAndSaveCookieValue: null,
+const CredentailsCookieContext = createContext<ICredentailsCookieContext>({
+  cookieValue: initialCredentials,
+  setAndSaveCookieValue: () => {},
 })
 
 export function CredentialsCookieProvider({ children }) {
