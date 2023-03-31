@@ -193,7 +193,7 @@ export default function IndexPage() {
           <div className="flex min-h-[150px] cursor-pointer items-center justify-center p-10">
             <input {...getInputProps()} />
 
-            {files ? (
+            {files.length > 0 ? (
               <ul>
                 {files.map((file) => (
                   <li key={file.name}>* {file.name}</li>
