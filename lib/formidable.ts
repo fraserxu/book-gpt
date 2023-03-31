@@ -24,7 +24,7 @@ export const fileConsumer = (
     [filename: string]: Buffer
   }
 ) => {
-  const chunks = []
+  const chunks: Uint8Array[] = []
 
   const writable = new Writable({
     write: (chunk, _enc, next) => {

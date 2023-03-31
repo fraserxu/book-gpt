@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useCallback, useState } from "react"
-import Head from "next/head"
 import Link from "next/link"
 import { useCredentialsCookie } from "@/context/credentials-context"
 import { useToast } from "@/hooks/use-toast"
@@ -187,7 +186,7 @@ export default function IndexPage() {
           Upload one or multiple books
         </h2>
         <div
-          className="min-w-full rounded-md border border-slate-200 p-0 dark:border-slate-700"
+          className="min-w-full rounded-md border border-slate-200 p-0"
           {...getRootProps()}
         >
           <div className="flex min-h-[150px] cursor-pointer items-center justify-center p-10">
