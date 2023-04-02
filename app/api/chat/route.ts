@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 import { ChatVectorDBQAChain } from "langchain/chains"
 import { OpenAIEmbeddings } from "langchain/embeddings"
 import { OpenAI } from "langchain/llms"
@@ -6,11 +6,9 @@ import { PineconeStore } from "langchain/vectorstores"
 
 import { createPineconeIndex } from "@/lib/pinecone"
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { question, chatHistory, credentials } = req.body
+export async function POST(req: Request) {
+  const body = await req.json()
+  const { question, chatHistory, credentials } = body
 
   try {
     const index = await createPineconeIndex({
@@ -38,8 +36,9 @@ export default async function handler(
       chat_history: chatHistory || [],
     })
 
-    res.status(200).json(response)
+    return NextResponse.json(response)
   } catch (e) {
-    res.status(500).json({ error: e.message || "Unknown error." })
+    console.log(e)
+    return NextResponse.json({ error: e.message || "Unknown error." })
   }
 }

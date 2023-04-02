@@ -52,7 +52,7 @@ export default function IndexPage() {
     formData.append("pinecone-environment", cookieValue.pineconeEnvironment)
     formData.append("pinecone-index", cookieValue.pineconeIndex)
     Array.from(files).forEach((file: File) => {
-      formData.append(file.name, file)
+      formData.append("files", file)
     })
 
     setIsUploading(true)
@@ -216,7 +216,7 @@ export default function IndexPage() {
         <div className="self-start">
           <Button
             disabled={
-              !files ||
+              files.length <= 0 ||
               isUploading ||
               !cookieValue.openaiApiKey ||
               !cookieValue.pineconeEnvironment ||

@@ -1,7 +1,6 @@
-import pdfParse from "pdf-parse"
+import pdfExtraction from "pdf-extraction"
 
 export const getTextContentFromPDF = async (pdfBuffer) => {
-  // TODO: pass metadata
-  const { text } = await pdfParse(pdfBuffer)
+  const { text } = await pdfExtraction(pdfBuffer)
   return text
 }
