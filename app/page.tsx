@@ -185,21 +185,26 @@ export default function IndexPage() {
         done = true
         break
       }
-      const response = JSON.parse(chunkValue)
-      setChatHistory((currentChatHistory) => {
-        const previousHistory = currentChatHistory.slice(
-          0,
-          currentChatHistory.length - 1
-        )
-        const lastMessage = currentChatHistory[currentChatHistory.length - 1]
-        return [
-          ...previousHistory,
-          {
-            from: "bot",
-            content: lastMessage.content + response.data,
-          },
-        ]
-      })
+      try {
+        console.log({ chunkValue })
+        const response = JSON.parse(chunkValue)
+        setChatHistory((currentChatHistory) => {
+          const previousHistory = currentChatHistory.slice(
+            0,
+            currentChatHistory.length - 1
+          )
+          const lastMessage = currentChatHistory[currentChatHistory.length - 1]
+          return [
+            ...previousHistory,
+            {
+              from: "bot",
+              content: lastMessage.content + response.data,
+            },
+          ]
+        })
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     setIsAsking(false)
