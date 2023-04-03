@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from "react"
 import Head from "next/head"
 import Image from "next/image"
@@ -6,7 +8,6 @@ import { useCredentialsCookie } from "@/context/credentials-context"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { FileKey } from "lucide-react"
 
-import { Layout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -60,7 +61,7 @@ export default function CredentailsPage() {
   }
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>Credentials</title>
         <meta name="description" content="Add credentials" />
@@ -252,6 +253,6 @@ export default function CredentailsPage() {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   )
 }

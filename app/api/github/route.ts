@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next"
+import { NextResponse } from "next/server"
 import { Document } from "langchain/document"
 import { OpenAIEmbeddings } from "langchain/embeddings"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
@@ -8,11 +8,9 @@ import { fetchContentFromGithubUrl } from "@/lib/github"
 import { createPineconeIndex } from "@/lib/pinecone"
 import { chunk } from "@/lib/utils"
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { credentials, githubUrl } = req.body
+export async function POST(req: Request) {
+  const body = await req.json()
+  const { credentials, githubUrl } = body
 
   const contents = await fetchContentFromGithubUrl(
     githubUrl,
@@ -53,8 +51,8 @@ export default async function handler(
       })
     )
 
-    res.status(200).json({})
+    return NextResponse.json({})
   } catch (e) {
-    res.status(500).json({ error: e.message || "Unknown error." })
+    return NextResponse.json({ error: e.message || "Unknown error." })
   }
 }
