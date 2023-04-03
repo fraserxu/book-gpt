@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
-import { ChatVectorDBQAChain } from "langchain/chains"
 import { OpenAIEmbeddings } from "langchain/embeddings"
-import { OpenAI } from "langchain/llms"
 import { PineconeStore } from "langchain/vectorstores"
 
+import { makeChain } from "@/lib/chain"
 import { createPineconeIndex } from "@/lib/pinecone"
 
 export async function POST(req: Request) {
@@ -24,19 +23,26 @@ export async function POST(req: Request) {
       })
     )
 
-    const model = new OpenAI({
-      modelName: "gpt-3.5-turbo",
-      openAIApiKey: credentials.openaiApiKey,
-    })
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      async start(controller) {
+        const chain = makeChain(
+          vectorStore,
+          credentials.openaiApiKey,
+          (token: string) => {
+            controller.enqueue(encoder.encode(JSON.stringify({ data: token })))
+          }
+        )
 
-    const chain = ChatVectorDBQAChain.fromLLM(model, vectorStore)
-    const response = await chain.call({
-      question,
-      max_tokens: 500, // todo: pick up a sensible value
-      chat_history: chatHistory || [],
+        await chain.call({
+          question,
+          chat_history: chatHistory || [],
+        })
+        controller.close()
+      },
     })
-
-    return NextResponse.json(response)
+    await stream
+    return new Response(stream)
   } catch (e) {
     console.log(e)
     return NextResponse.json({ error: e.message || "Unknown error." })

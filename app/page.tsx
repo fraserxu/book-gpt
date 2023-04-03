@@ -149,25 +149,60 @@ export default function IndexPage() {
         "content-type": "application/json",
       },
     })
-    const answer = await response.json()
 
-    if (answer.text) {
-      setChatHistory((currentChatHistory) => [
-        ...currentChatHistory,
-        {
-          from: "bot",
-          content: answer.text,
-        },
-      ])
-
-      setIsAsking(false)
-    } else {
+    if (!response.ok) {
       setIsAsking(false)
       toast({
         title: "Something went wrong.",
-        description: answer.error,
       })
     }
+
+    const data = response.body
+    if (!data) {
+      setIsAsking(false)
+      toast({
+        title: "Something went wrong.",
+      })
+    }
+
+    const reader = data?.getReader()
+    if (!reader) return
+    const decoder = new TextDecoder()
+    let done = false
+    setChatHistory((currentChatHistory) => [
+      ...currentChatHistory,
+      {
+        from: "bot",
+        content: "",
+      },
+    ])
+
+    while (!done) {
+      const { value, done: doneReading } = await reader?.read()
+      done = doneReading
+      const chunkValue = decoder.decode(value)
+      if (chunkValue === "") {
+        done = true
+        break
+      }
+      const response = JSON.parse(chunkValue)
+      setChatHistory((currentChatHistory) => {
+        const previousHistory = currentChatHistory.slice(
+          0,
+          currentChatHistory.length - 1
+        )
+        const lastMessage = currentChatHistory[currentChatHistory.length - 1]
+        return [
+          ...previousHistory,
+          {
+            from: "bot",
+            content: lastMessage.content + response.data,
+          },
+        ]
+      })
+    }
+
+    setIsAsking(false)
   }, [question, chatHistory, cookieValue, toast])
 
   const handleKeyDown = useCallback(

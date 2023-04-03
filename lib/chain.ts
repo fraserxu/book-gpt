@@ -29,13 +29,11 @@ export const makeChain = (
     llm: new OpenAI({
       temperature: 0,
       openAIApiKey: openaiApiKey,
-      modelName: "gpt-3.5-turbo",
     }),
     prompt: CONDENSE_PROMPT,
   })
   const docChain = loadQAChain(
     new OpenAI({
-      modelName: "gpt-3.5-turbo",
       temperature: 0,
       openAIApiKey: openaiApiKey,
       streaming: Boolean(onTokenStream),
