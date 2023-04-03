@@ -30,7 +30,7 @@ export async function POST(req: Request) {
           vectorStore,
           credentials.openaiApiKey,
           (token: string) => {
-            controller.enqueue(encoder.encode(JSON.stringify({ data: token })))
+            controller.enqueue(encoder.encode(token))
           }
         )
 

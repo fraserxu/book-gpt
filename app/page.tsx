@@ -145,9 +145,6 @@ export default function IndexPage() {
         }, ""),
       }),
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
     })
 
     if (!response.ok) {
@@ -187,7 +184,6 @@ export default function IndexPage() {
       }
       try {
         console.log({ chunkValue })
-        const response = JSON.parse(chunkValue)
         setChatHistory((currentChatHistory) => {
           const previousHistory = currentChatHistory.slice(
             0,
@@ -198,7 +194,7 @@ export default function IndexPage() {
             ...previousHistory,
             {
               from: "bot",
-              content: lastMessage.content + response.data,
+              content: lastMessage.content + chunkValue,
             },
           ]
         })
